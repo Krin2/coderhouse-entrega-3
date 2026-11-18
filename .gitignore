@@ -15,6 +15,9 @@ vectorstore/
 chroma_db/
 *.sqlite3
 
+# Cache de la limpieza con LLM
+.cache/
+
 # Python
 __pycache__/
 *.py[cod]

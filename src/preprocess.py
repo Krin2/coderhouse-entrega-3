@@ -129,7 +129,8 @@ def _reflow(lines: list[str]) -> list[str]:
                        if HEADING_NUM_RE.match(line) else line)
         last = out[-1]
         prev_open = (not atomic and not last.endswith(TERMINAL)
-                     and len(last.split()) >= 4 and not last.startswith("#"))
+                     and len(last.split()) >= 4
+                     and not last.startswith(("#", ">>>")))   # titulos y lineas REPL
     return out
 
 
