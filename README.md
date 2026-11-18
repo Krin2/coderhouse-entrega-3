@@ -44,8 +44,9 @@ print(respuesta.answer, respuesta.sources)
 - **Embeddings:** `text-embedding-3-small`, definido una sola vez en `config.py` y usado tanto para indexar como para consultar (evita el error de embeddings no coincidentes).
 - **top_k = 4:** evita el "contexto infinito" y el *Lost in the Middle*.
 - **Persistencia:** si la colección ya tiene datos no se reindexa; los IDs son hashes deterministas.
-- **Grounding:** el prompt obliga a responder "No lo sé" si la respuesta no está en el contexto. La cadena termina en `PydanticOutputParser` → `RAGAnswer(answer, sources, found)`, y se descartan las referencias que no provengan de los fragmentos recuperados.
-- **Cadena asíncrona:** `{"context": retriever | format_docs, "question": passthrough} | prompt | ChatOpenAI | parser`, invocada con `ainvoke`.
+- **Grounding:** el prompt obliga a responder "No lo sé" si la respuesta no está en el contexto. La cadena termina en `PydanticOutputParser` y devuelve `RAGAnswer(answer, sources, found)`.
+- **Referencias por número de bloque:** los fragmentos del contexto se numeran `[1]`, `[2]`, … y el LLM devuelve solo esos números (`source_ids`). El código los traduce a `archivo#fragmento`, descarta ids fuera de rango y duplicados, y devuelve `sources=[]` ante "No lo sé". Así el modelo no puede deformar la referencia (antes escribía `sentencias.md#2.8`, el número de sección del título, en vez del fragmento `#4`).
+- **Cadena asíncrona:** `question → retriever → contexto numerado → prompt → ChatOpenAI → PydanticOutputParser → RAGAnswer`, con una sola recuperación por consulta e invocada con `ainvoke`.
 
 ## Resultados reales
 
@@ -72,18 +73,17 @@ El modelo no usa su conocimiento general ni inventa una respuesta: declara que n
 
 ## Pruebas (pytest)
 ```powershell
-pytest            # 11 pruebas
+pytest                        # todas las pruebas
 pytest -m "not integration"   # solo las offline (no llaman a la API)
 ```
 | Archivo | Qué verifica |
 |---|---|
 | `tests/test_preprocess.py` | Limpieza: líneas REPL, reflujo de prosa y títulos, código intacto, notas al pie y listas. |
 | `tests/test_ingest.py` | Lectura de `data/`, fragmentos ≤ 500 tokens y referencia `archivo#fragmento` en cada uno. |
-| `tests/test_rag.py` (`integration`) | Persistencia de la ingesta, pregunta con respuesta (con referencias), pregunta trampa ("No lo sé" sin fuentes) y consultas concurrentes sin bloquear el event loop. |
+| `tests/test_rag_refs.py` | Referencias (LLM y retriever simulados): bloques numerados, traducción de ids a `archivo#fragmento`, descarte de ids inválidos y cadena asíncrona con la trampa. |
+| `tests/test_rag.py` (`integration`) | Persistencia de la ingesta, pregunta con respuesta (con referencias), regresión de la fuente principal (`¿Qué hace el operador módulo?` debe citar `sentencias.md`), pregunta trampa ("No lo sé" sin fuentes) y consultas concurrentes sin bloquear el event loop. |
 
 Las pruebas de integración usan una base vectorial temporal (no tocan `./vectorstore`) y se omiten solas si no hay `OPENAI_API_KEY` en el entorno.
-
-Resultado actual: `11 passed`.
 
 ## Historial
 Cada paso se resolvió en su propia rama (`paso-01-…`, `paso-02-…`, …) y se integró a `master` con merge `--no-ff`: `git log --graph --oneline`.
