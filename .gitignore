@@ -1,0 +1,29 @@
+﻿# Secretos / entorno
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Base vectorial local (se regenera con la ingesta)
+vectorstore/
+chroma_db/
+*.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+
+# IDE / SO
+.vscode/
+.idea/
+.claude/settings.local.json
+.DS_Store
+Thumbs.db
