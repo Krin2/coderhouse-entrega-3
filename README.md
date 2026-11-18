@@ -34,6 +34,7 @@ print(asyncio.run(get_rag_response("¿Qué es una variable?")))
 
 ## Decisiones de diseño
 - **Chunking:** `RecursiveCharacterTextSplitter.from_tiktoken_encoder` con `chunk_size=500` y `chunk_overlap=50` **tokens**. Los fragmentos resultantes miden hasta 500 tokens (el splitter respeta límites de párrafo, por lo que algunos son más cortos).
+- **Limpieza previa (`src/preprocess.py`):** antes del chunking, `clean_documents` normaliza el ruido de extracción de PDF: une líneas cortadas a mitad de frase, compacta listas de una palabra por línea, repara palabras cortadas/pegadas, quita notas al pie (`mnemónico2`) y texto sin traducir, y numera los títulos (`2.4 …` → `# 2.4 …`). Los bloques de código no se tocan. Si cambias la limpieza o los documentos, reconstruye la base con `python -m src.ingest --force`. Para ver el efecto: `python -m src.preprocess`.
 - **Embeddings:** `text-embedding-3-small`, definido una sola vez en `config.py` y usado tanto para indexar como para consultar (evita el error de embeddings no coincidentes).
 - **top_k = 4:** evita el "contexto infinito" y el *Lost in the Middle*.
 - **Persistencia:** si la colección ya tiene datos, no se reindexa; los IDs son hashes deterministas.

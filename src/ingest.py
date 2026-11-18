@@ -11,6 +11,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from src.config import (CHUNK_OVERLAP, CHUNK_SIZE, COLLECTION_NAME, DATA_DIR,
                         VECTORSTORE_DIR, get_embeddings)
+from src.preprocess import clean_documents
 
 
 def get_vectorstore() -> Chroma:
@@ -57,7 +58,8 @@ def ingest(force: bool = False) -> int:
         vs.delete_collection()
         vs = get_vectorstore()
 
-    chunks = split_documents(load_documents())
+    # Limpieza ANTES del chunking: quita ruido de extraccion de PDF.
+    chunks = split_documents(clean_documents(load_documents()))
     # IDs deterministas: reingestar el mismo texto no duplica registros.
     ids = [hashlib.sha256(
         f"{c.metadata['source']}:{c.metadata['chunk']}:{c.page_content}".encode()
