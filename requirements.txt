@@ -8,3 +8,4 @@ openai==3.55.1
 pydantic==2.14.3
 python-dotenv==1.2.4
 tiktoken==0.14.0
+pytest==9.2.0

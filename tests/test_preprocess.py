@@ -1,7 +1,4 @@
-"""Pruebas de la limpieza determinista (sin API ni red).
-
-Uso:  python -m tests.test_preprocess
-"""
+"""Pruebas de la limpieza determinista (sin API ni red)."""
 from src.preprocess import clean_text
 
 
@@ -29,10 +26,3 @@ def test_lista_de_una_palabra_por_linea():
                        "else", "except", "finally"])
     out = clean_text(f"Palabras reservadas:\n{words}\nFin de la lista.\n")
     assert "Lista: and, as, assert" in out and "Fin de la lista." in out
-
-
-if __name__ == "__main__":
-    for name, fn in list(globals().items()):
-        if name.startswith("test_"):
-            fn()
-            print("OK ", name)
