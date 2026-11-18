@@ -85,5 +85,3 @@ pytest -m "not integration"   # solo las offline (no llaman a la API)
 
 Las pruebas de integración usan una base vectorial temporal (no tocan `./vectorstore`) y se omiten solas si no hay `OPENAI_API_KEY` en el entorno.
 
-## Historial
-Cada paso se resolvió en su propia rama (`paso-01-…`, `paso-02-…`, …) y se integró a `master` con merge `--no-ff`: `git log --graph --oneline`.
