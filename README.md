@@ -73,7 +73,7 @@ El modelo no usa su conocimiento general ni inventa una respuesta: declara que n
 
 ## Pruebas (pytest)
 ```powershell
-pytest            # 18 pruebas
+pytest                        # todas las pruebas
 pytest -m "not integration"   # solo las offline (no llaman a la API)
 ```
 | Archivo | Qué verifica |
@@ -84,8 +84,6 @@ pytest -m "not integration"   # solo las offline (no llaman a la API)
 | `tests/test_rag.py` (`integration`) | Persistencia de la ingesta, pregunta con respuesta (con referencias), regresión de la fuente principal (`¿Qué hace el operador módulo?` debe citar `sentencias.md`), pregunta trampa ("No lo sé" sin fuentes) y consultas concurrentes sin bloquear el event loop. |
 
 Las pruebas de integración usan una base vectorial temporal (no tocan `./vectorstore`) y se omiten solas si no hay `OPENAI_API_KEY` en el entorno.
-
-Resultado actual: `18 passed`.
 
 ## Historial
 Cada paso se resolvió en su propia rama (`paso-01-…`, `paso-02-…`, …) y se integró a `master` con merge `--no-ff`: `git log --graph --oneline`.
