@@ -5,6 +5,7 @@ Se omiten automaticamente si no hay OPENAI_API_KEY.
 """
 import asyncio
 import os
+import re
 
 import pytest
 
@@ -51,6 +52,15 @@ def test_pregunta_con_respuesta_en_los_documentos(rag, run):
     assert r.found is True
     assert r.sources, "la respuesta debe traer referencias"
     assert all("#" in s for s in r.sources)  # formato archivo#fragmento
+
+
+def test_referencias_validas_y_apuntan_a_la_fuente_principal(rag, run):
+    """Regresion: antes el LLM citaba 'sentencias.md#2.8' y solo quedaba
+    'glosario.md#1'. La respuesta sale de sentencias.md (seccion 2.8)."""
+    r = run(rag.get_rag_response("¿Qué hace el operador módulo?"))
+    assert r.found is True
+    assert all(re.fullmatch(r"[\w .]+\.(md|txt)#\d+", s) for s in r.sources), r.sources
+    assert any(s.startswith("sentencias.md#") for s in r.sources), r.sources
 
 
 def test_pregunta_trampa_no_alucina(rag, run):
